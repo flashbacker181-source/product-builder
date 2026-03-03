@@ -1,14 +1,289 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로또 번호 추천기</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      min-height: 100vh;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    .subtitle {
+      color: #aaa;
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+    }
+    #generateBtn {
+      background: linear-gradient(135deg, #e94560, #c23152);
+      border: none;
+      color: #fff;
+      padding: 16px 48px;
+      font-size: 1.2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+      margin-bottom: 40px;
+    }
+    #generateBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(233, 69, 96, 0.6);
+    }
+    #generateBtn:active { transform: translateY(0); }
+    .result-section {
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 40px;
+    }
+    .result-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+      color: #ffd700;
+    }
+    .lotto-set {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .lotto-ball {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      animation: popIn 0.3s ease-out;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .ball-1-10 { background: linear-gradient(135deg, #fbc531, #e1b12c); }
+    .ball-11-20 { background: linear-gradient(135deg, #4cd137, #44bd32); }
+    .ball-21-30 { background: linear-gradient(135deg, #e84118, #c23616); }
+    .ball-31-40 { background: linear-gradient(135deg, #7f8fa6, #718093); }
+    .ball-41-45 { background: linear-gradient(135deg, #00a8ff, #0097e6); }
+
+    .history-section {
+      width: 100%;
+      max-width: 600px;
+    }
+    .history-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+      color: #ffd700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #clearBtn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #aaa;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #clearBtn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+    .history-item {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .history-time {
+      font-size: 0.8rem;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .history-sets {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .history-set {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .history-set .set-label {
+      font-size: 0.75rem;
+      color: #aaa;
+      width: 20px;
+      flex-shrink: 0;
+    }
+    .history-ball {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.85rem;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .empty-msg {
+      text-align: center;
+      color: #666;
+      padding: 30px;
+      font-size: 0.95rem;
+    }
+  </style>
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+  <h1>🎱 로또 번호 추천기</h1>
+  <p class="subtitle">버튼을 눌러 행운의 번호를 받아보세요!</p>
+  <button id="generateBtn">번호 추천받기</button>
+
+  <div class="result-section">
+    <h2>추천 번호 (5세트)</h2>
+    <div id="currentResult">
+      <p class="empty-msg">버튼을 눌러 번호를 추천받으세요</p>
+    </div>
+  </div>
+
+  <div class="history-section">
+    <h2>
+      추천 기록
+      <button id="clearBtn" onclick="clearHistory()">기록 삭제</button>
+    </h2>
+    <div id="historyList">
+      <p class="empty-msg">아직 추천 기록이 없습니다</p>
+    </div>
+  </div>
+
+  <script>
+    const history = JSON.parse(localStorage.getItem('lottoHistory') || '[]');
+    renderHistory();
+
+    document.getElementById('generateBtn').addEventListener('click', generate);
+
+    function generate() {
+      const sets = [];
+      for (let i = 0; i < 5; i++) {
+        sets.push(generateOneSet());
+      }
+
+      // 현재 결과 표시
+      const resultDiv = document.getElementById('currentResult');
+      resultDiv.innerHTML = '';
+      sets.forEach((nums, i) => {
+        const setDiv = document.createElement('div');
+        setDiv.className = 'lotto-set';
+        nums.forEach((n, j) => {
+          const ball = document.createElement('div');
+          ball.className = 'lotto-ball ' + getBallClass(n);
+          ball.textContent = n;
+          ball.style.animationDelay = (i * 0.1 + j * 0.05) + 's';
+          setDiv.appendChild(ball);
+        });
+        resultDiv.appendChild(setDiv);
+      });
+
+      // 기록 저장
+      const record = {
+        time: new Date().toLocaleString('ko-KR'),
+        sets: sets
+      };
+      history.unshift(record);
+      localStorage.setItem('lottoHistory', JSON.stringify(history));
+      renderHistory();
+    }
+
+    function generateOneSet() {
+      const nums = [];
+      while (nums.length < 6) {
+        const n = Math.floor(Math.random() * 45) + 1;
+        if (!nums.includes(n)) nums.push(n);
+      }
+      return nums.sort((a, b) => a - b);
+    }
+
+    function getBallClass(n) {
+      if (n <= 10) return 'ball-1-10';
+      if (n <= 20) return 'ball-11-20';
+      if (n <= 30) return 'ball-21-30';
+      if (n <= 40) return 'ball-31-40';
+      return 'ball-41-45';
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      if (history.length === 0) {
+        list.innerHTML = '<p class="empty-msg">아직 추천 기록이 없습니다</p>';
+        return;
+      }
+      list.innerHTML = '';
+      history.forEach(record => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+
+        const time = document.createElement('div');
+        time.className = 'history-time';
+        time.textContent = record.time;
+        item.appendChild(time);
+
+        const setsDiv = document.createElement('div');
+        setsDiv.className = 'history-sets';
+
+        record.sets.forEach((nums, i) => {
+          const setDiv = document.createElement('div');
+          setDiv.className = 'history-set';
+
+          const label = document.createElement('span');
+          label.className = 'set-label';
+          label.textContent = String.fromCharCode(65 + i);
+          setDiv.appendChild(label);
+
+          nums.forEach(n => {
+            const ball = document.createElement('div');
+            ball.className = 'history-ball ' + getBallClass(n);
+            ball.textContent = n;
+            setDiv.appendChild(ball);
+          });
+          setsDiv.appendChild(setDiv);
+        });
+
+        item.appendChild(setsDiv);
+        list.appendChild(item);
+      });
+    }
+
+    function clearHistory() {
+      history.length = 0;
+      localStorage.removeItem('lottoHistory');
+      renderHistory();
+    }
+  </script>
 </body>
 </html>
