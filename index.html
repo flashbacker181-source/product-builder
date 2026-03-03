@@ -1,28 +1,97 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>로또 번호 추천기</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      --text: #fff;
+      --subtitle: #aaa;
+      --heading: #ffd700;
+      --card-bg: rgba(255,255,255,0.05);
+      --card-border: rgba(255,255,255,0.1);
+      --btn-secondary-bg: rgba(255,255,255,0.1);
+      --btn-secondary-border: rgba(255,255,255,0.2);
+      --btn-secondary-color: #aaa;
+      --btn-secondary-hover-bg: rgba(255,255,255,0.2);
+      --btn-secondary-hover-color: #fff;
+      --empty-color: #666;
+      --time-color: #888;
+      --label-color: #aaa;
+      --toggle-bg: rgba(255,255,255,0.1);
+      --toggle-hover: rgba(255,255,255,0.2);
+    }
+
+    [data-theme="light"] {
+      --bg: linear-gradient(135deg, #f0f4ff, #e8edf5, #dce3f0);
+      --text: #222;
+      --subtitle: #666;
+      --heading: #b8860b;
+      --card-bg: rgba(0,0,0,0.04);
+      --card-border: rgba(0,0,0,0.1);
+      --btn-secondary-bg: rgba(0,0,0,0.06);
+      --btn-secondary-border: rgba(0,0,0,0.15);
+      --btn-secondary-color: #666;
+      --btn-secondary-hover-bg: rgba(0,0,0,0.1);
+      --btn-secondary-hover-color: #333;
+      --empty-color: #999;
+      --time-color: #888;
+      --label-color: #777;
+      --toggle-bg: rgba(0,0,0,0.08);
+      --toggle-hover: rgba(0,0,0,0.15);
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      background: var(--bg);
       min-height: 100vh;
-      color: #fff;
+      color: var(--text);
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 40px 20px;
+      transition: background 0.4s, color 0.4s;
     }
+
+    .top-bar {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      z-index: 100;
+    }
+    #themeToggle {
+      background: var(--toggle-bg);
+      border: none;
+      color: var(--text);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #themeToggle:hover {
+      background: var(--toggle-hover);
+      transform: scale(1.1);
+    }
+
     h1 {
       font-size: 2.2rem;
       margin-bottom: 10px;
       text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
     }
+    [data-theme="light"] h1 {
+      text-shadow: none;
+    }
     .subtitle {
-      color: #aaa;
+      color: var(--subtitle);
       margin-bottom: 30px;
       font-size: 0.95rem;
     }
@@ -51,7 +120,7 @@
     .result-section h2 {
       font-size: 1.3rem;
       margin-bottom: 16px;
-      color: #ffd700;
+      color: var(--heading);
     }
     .lotto-set {
       display: flex;
@@ -91,25 +160,28 @@
     .history-section h2 {
       font-size: 1.3rem;
       margin-bottom: 16px;
-      color: #ffd700;
+      color: var(--heading);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     #clearBtn {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #aaa;
+      background: var(--btn-secondary-bg);
+      border: 1px solid var(--btn-secondary-border);
+      color: var(--btn-secondary-color);
       padding: 6px 16px;
       font-size: 0.8rem;
       border-radius: 20px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, color 0.2s;
     }
-    #clearBtn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+    #clearBtn:hover {
+      background: var(--btn-secondary-hover-bg);
+      color: var(--btn-secondary-hover-color);
+    }
     .history-item {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 14px 18px;
       margin-bottom: 10px;
@@ -121,7 +193,7 @@
     }
     .history-time {
       font-size: 0.8rem;
-      color: #888;
+      color: var(--time-color);
       margin-bottom: 8px;
     }
     .history-sets {
@@ -136,7 +208,7 @@
     }
     .history-set .set-label {
       font-size: 0.75rem;
-      color: #aaa;
+      color: var(--label-color);
       width: 20px;
       flex-shrink: 0;
     }
@@ -154,13 +226,17 @@
     }
     .empty-msg {
       text-align: center;
-      color: #666;
+      color: var(--empty-color);
       padding: 30px;
       font-size: 0.95rem;
     }
   </style>
 </head>
 <body>
+  <div class="top-bar">
+    <button id="themeToggle" title="테마 전환">🌙</button>
+  </div>
+
   <h1>🎱 로또 번호 추천기</h1>
   <p class="subtitle">버튼을 눌러 행운의 번호를 받아보세요!</p>
   <button id="generateBtn">번호 추천받기</button>
@@ -183,6 +259,24 @@
   </div>
 
   <script>
+    // 테마 관리
+    const savedTheme = localStorage.getItem('lottoTheme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateToggleIcon(savedTheme);
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('lottoTheme', next);
+      updateToggleIcon(next);
+    });
+
+    function updateToggleIcon(theme) {
+      document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    // 로또 기능
     const history = JSON.parse(localStorage.getItem('lottoHistory') || '[]');
     renderHistory();
 
@@ -194,7 +288,6 @@
         sets.push(generateOneSet());
       }
 
-      // 현재 결과 표시
       const resultDiv = document.getElementById('currentResult');
       resultDiv.innerHTML = '';
       sets.forEach((nums, i) => {
@@ -210,7 +303,6 @@
         resultDiv.appendChild(setDiv);
       });
 
-      // 기록 저장
       const record = {
         time: new Date().toLocaleString('ko-KR'),
         sets: sets
