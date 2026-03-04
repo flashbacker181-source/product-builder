@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로또 번호 추천기</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      --text: #fff;
+      --subtitle: #aaa;
+      --heading: #ffd700;
+      --card-bg: rgba(255,255,255,0.05);
+      --card-border: rgba(255,255,255,0.1);
+      --btn-secondary-bg: rgba(255,255,255,0.1);
+      --btn-secondary-border: rgba(255,255,255,0.2);
+      --btn-secondary-color: #aaa;
+      --btn-secondary-hover-bg: rgba(255,255,255,0.2);
+      --btn-secondary-hover-color: #fff;
+      --empty-color: #666;
+      --time-color: #888;
+      --label-color: #aaa;
+      --toggle-bg: rgba(255,255,255,0.1);
+      --toggle-hover: rgba(255,255,255,0.2);
+    }
+
+    [data-theme="light"] {
+      --bg: linear-gradient(135deg, #f0f4ff, #e8edf5, #dce3f0);
+      --text: #222;
+      --subtitle: #666;
+      --heading: #b8860b;
+      --card-bg: rgba(0,0,0,0.04);
+      --card-border: rgba(0,0,0,0.1);
+      --btn-secondary-bg: rgba(0,0,0,0.06);
+      --btn-secondary-border: rgba(0,0,0,0.15);
+      --btn-secondary-color: #666;
+      --btn-secondary-hover-bg: rgba(0,0,0,0.1);
+      --btn-secondary-hover-color: #333;
+      --empty-color: #999;
+      --time-color: #888;
+      --label-color: #777;
+      --toggle-bg: rgba(0,0,0,0.08);
+      --toggle-hover: rgba(0,0,0,0.15);
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      transition: background 0.4s, color 0.4s;
+    }
+
+    .top-bar {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      z-index: 100;
+    }
+    #themeToggle {
+      background: var(--toggle-bg);
+      border: none;
+      color: var(--text);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #themeToggle:hover {
+      background: var(--toggle-hover);
+      transform: scale(1.1);
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    [data-theme="light"] h1 {
+      text-shadow: none;
+    }
+    .subtitle {
+      color: var(--subtitle);
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+    }
+    #generateBtn {
+      background: linear-gradient(135deg, #e94560, #c23152);
+      border: none;
+      color: #fff;
+      padding: 16px 48px;
+      font-size: 1.2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+      margin-bottom: 40px;
+    }
+    #generateBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(233, 69, 96, 0.6);
+    }
+    #generateBtn:active { transform: translateY(0); }
+    .result-section {
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 40px;
+    }
+    .result-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+      color: var(--heading);
+    }
+    .lotto-set {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .lotto-ball {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      animation: popIn 0.3s ease-out;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .ball-1-10 { background: linear-gradient(135deg, #fbc531, #e1b12c); }
+    .ball-11-20 { background: linear-gradient(135deg, #4cd137, #44bd32); }
+    .ball-21-30 { background: linear-gradient(135deg, #e84118, #c23616); }
+    .ball-31-40 { background: linear-gradient(135deg, #7f8fa6, #718093); }
+    .ball-41-45 { background: linear-gradient(135deg, #00a8ff, #0097e6); }
+
+    .history-section {
+      width: 100%;
+      max-width: 600px;
+    }
+    .history-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+      color: var(--heading);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #clearBtn {
+      background: var(--btn-secondary-bg);
+      border: 1px solid var(--btn-secondary-border);
+      color: var(--btn-secondary-color);
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    #clearBtn:hover {
+      background: var(--btn-secondary-hover-bg);
+      color: var(--btn-secondary-hover-color);
+    }
+    .history-item {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .history-time {
+      font-size: 0.8rem;
+      color: var(--time-color);
+      margin-bottom: 8px;
+    }
+    .history-sets {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .history-set {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .history-set .set-label {
+      font-size: 0.75rem;
+      color: var(--label-color);
+      width: 20px;
+      flex-shrink: 0;
+    }
+    .history-ball {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.85rem;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .empty-msg {
+      text-align: center;
+      color: var(--empty-color);
+      padding: 30px;
+      font-size: 0.95rem;
+    }
+
+    .contact-section {
+      width: 100%;
+      max-width: 600px;
+      margin-top: 40px;
+      padding-top: 40px;
+      border-top: 1px solid var(--card-border);
+    }
+    .contact-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+      color: var(--heading);
+    }
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .contact-form input,
+    .contact-form textarea {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder {
+      color: var(--label-color);
+    }
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      border-color: #e94560;
+    }
+    .contact-form textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .contact-form button {
+      background: linear-gradient(135deg, #e94560, #c23152);
+      border: none;
+      color: #fff;
+      padding: 14px;
+      font-size: 1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+    }
+    .contact-form button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(233, 69, 96, 0.6);
+    }
+    .contact-form button:active { transform: translateY(0); }
+    .form-msg {
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .form-msg.success {
+      display: block;
+      background: rgba(76, 209, 55, 0.15);
+      color: #4cd137;
+      border: 1px solid rgba(76, 209, 55, 0.3);
+    }
+    .form-msg.error {
+      display: block;
+      background: rgba(233, 69, 96, 0.15);
+      color: #e94560;
+      border: 1px solid rgba(233, 69, 96, 0.3);
+    }
+
+    .comments-section {
+      width: 100%;
+      max-width: 600px;
+      margin-top: 40px;
+      padding-top: 40px;
+      border-top: 1px solid var(--card-border);
+    }
+    .comments-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+      color: var(--heading);
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <button id="themeToggle" title="테마 전환">🌙</button>
+  </div>
+
+  <h1>🎱 로또 번호 추천기</h1>
+  <p class="subtitle">버튼을 눌러 행운의 번호를 받아보세요!</p>
+  <button id="generateBtn">번호 추천받기</button>
+
+  <div class="result-section">
+    <h2>추천 번호 (5세트)</h2>
+    <div id="currentResult">
+      <p class="empty-msg">버튼을 눌러 번호를 추천받으세요</p>
+    </div>
+  </div>
+
+  <div class="history-section">
+    <h2>
+      추천 기록
+      <button id="clearBtn" onclick="clearHistory()">기록 삭제</button>
+    </h2>
+    <div id="historyList">
+      <p class="empty-msg">아직 추천 기록이 없습니다</p>
+    </div>
+  </div>
+
+  <div class="contact-section">
+    <h2>제휴 문의</h2>
+    <form class="contact-form" id="contactForm" action="https://formspree.io/f/meelbdyj" method="POST">
+      <input type="text" name="company" placeholder="회사/단체명" required>
+      <input type="email" name="email" placeholder="이메일 주소" required>
+      <input type="text" name="subject" placeholder="문의 제목" required>
+      <textarea name="message" placeholder="문의 내용을 입력해주세요" required></textarea>
+      <button type="submit">문의 보내기</button>
+      <div class="form-msg" id="formMsg"></div>
+    </form>
+  </div>
+
+  <div class="comments-section">
+    <h2>댓글</h2>
+    <div id="disqus_thread"></div>
+    <script>
+      (function() {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://productbuilder-i11kwcnxc3.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+
+  <script>
+    // 테마 관리
+    const savedTheme = localStorage.getItem('lottoTheme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateToggleIcon(savedTheme);
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('lottoTheme', next);
+      updateToggleIcon(next);
+    });
+
+    function updateToggleIcon(theme) {
+      document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    // 로또 기능
+    const history = JSON.parse(localStorage.getItem('lottoHistory') || '[]');
+    renderHistory();
+
+    document.getElementById('generateBtn').addEventListener('click', generate);
+
+    function generate() {
+      const sets = [];
+      for (let i = 0; i < 5; i++) {
+        sets.push(generateOneSet());
+      }
+
+      const resultDiv = document.getElementById('currentResult');
+      resultDiv.innerHTML = '';
+      sets.forEach((nums, i) => {
+        const setDiv = document.createElement('div');
+        setDiv.className = 'lotto-set';
+        nums.forEach((n, j) => {
+          const ball = document.createElement('div');
+          ball.className = 'lotto-ball ' + getBallClass(n);
+          ball.textContent = n;
+          ball.style.animationDelay = (i * 0.1 + j * 0.05) + 's';
+          setDiv.appendChild(ball);
+        });
+        resultDiv.appendChild(setDiv);
+      });
+
+      const record = {
+        time: new Date().toLocaleString('ko-KR'),
+        sets: sets
+      };
+      history.unshift(record);
+      localStorage.setItem('lottoHistory', JSON.stringify(history));
+      renderHistory();
+    }
+
+    function generateOneSet() {
+      const nums = [];
+      while (nums.length < 6) {
+        const n = Math.floor(Math.random() * 45) + 1;
+        if (!nums.includes(n)) nums.push(n);
+      }
+      return nums.sort((a, b) => a - b);
+    }
+
+    function getBallClass(n) {
+      if (n <= 10) return 'ball-1-10';
+      if (n <= 20) return 'ball-11-20';
+      if (n <= 30) return 'ball-21-30';
+      if (n <= 40) return 'ball-31-40';
+      return 'ball-41-45';
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      if (history.length === 0) {
+        list.innerHTML = '<p class="empty-msg">아직 추천 기록이 없습니다</p>';
+        return;
+      }
+      list.innerHTML = '';
+      history.forEach(record => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+
+        const time = document.createElement('div');
+        time.className = 'history-time';
+        time.textContent = record.time;
+        item.appendChild(time);
+
+        const setsDiv = document.createElement('div');
+        setsDiv.className = 'history-sets';
+
+        record.sets.forEach((nums, i) => {
+          const setDiv = document.createElement('div');
+          setDiv.className = 'history-set';
+
+          const label = document.createElement('span');
+          label.className = 'set-label';
+          label.textContent = String.fromCharCode(65 + i);
+          setDiv.appendChild(label);
+
+          nums.forEach(n => {
+            const ball = document.createElement('div');
+            ball.className = 'history-ball ' + getBallClass(n);
+            ball.textContent = n;
+            setDiv.appendChild(ball);
+          });
+          setsDiv.appendChild(setDiv);
+        });
+
+        item.appendChild(setsDiv);
+        list.appendChild(item);
+      });
+    }
+
+    function clearHistory() {
+      history.length = 0;
+      localStorage.removeItem('lottoHistory');
+      renderHistory();
+    }
+
+    // 제휴 문의 폼
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const msg = document.getElementById('formMsg');
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = '전송 중...';
+      msg.className = 'form-msg';
+      msg.style.display = 'none';
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          msg.textContent = '문의가 성공적으로 전송되었습니다!';
+          msg.className = 'form-msg success';
+          form.reset();
+        } else {
+          throw new Error();
+        }
+      } catch {
+        msg.textContent = '전송에 실패했습니다. 다시 시도해주세요.';
+        msg.className = 'form-msg error';
+      }
+      btn.disabled = false;
+      btn.textContent = '문의 보내기';
+    });
+  </script>
+</body>
+</html>
