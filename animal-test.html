@@ -18,6 +18,33 @@
       padding: 40px 20px 60px;
     }
 
+    .top-bar {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      z-index: 100;
+    }
+    #lottoBtn {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      height: 44px;
+      padding: 0 14px;
+      border-radius: 22px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    #lottoBtn:hover {
+      background: rgba(255,255,255,0.2);
+      transform: scale(1.05);
+    }
+
     h1 {
       font-size: 2.2rem;
       margin-bottom: 8px;
@@ -237,6 +264,10 @@
   </style>
 </head>
 <body>
+
+  <div class="top-bar">
+    <a href="index.html" id="lottoBtn">🎱 로또 번호 추천기</a>
+  </div>
 
   <h1>🐶🐱 동물상 테스트</h1>
   <p class="subtitle">사진을 올리면 AI가 당신의 동물상을 분석해드려요!</p>
