@@ -344,6 +344,149 @@
       margin-bottom: 16px;
       color: var(--heading);
     }
+
+    #animalBtn { text-decoration: none; }
+
+    .content-section {
+      width: 100%;
+      max-width: 600px;
+      margin-top: 40px;
+      padding-top: 40px;
+      border-top: 1px solid var(--card-border);
+    }
+    .content-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+      color: var(--heading);
+    }
+    .content-section h3 {
+      font-size: 1.05rem;
+      margin: 22px 0 10px;
+      color: var(--text);
+    }
+    .content-section p {
+      color: var(--subtitle);
+      line-height: 1.8;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+    }
+    .prize-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+    }
+    .prize-table th {
+      background: rgba(255,215,0,0.1);
+      color: var(--heading);
+      padding: 10px 12px;
+      text-align: left;
+      border: 1px solid var(--card-border);
+    }
+    .prize-table td {
+      padding: 10px 12px;
+      border: 1px solid var(--card-border);
+      color: var(--subtitle);
+    }
+    .prize-table tr:hover td { background: rgba(255,255,255,0.03); }
+    .tip-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .tip-list li {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px 16px 12px 46px;
+      color: var(--subtitle);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      position: relative;
+    }
+    .tip-list li .tip-icon {
+      position: absolute;
+      left: 14px;
+      top: 11px;
+      font-size: 1.1rem;
+    }
+    .faq-item {
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .faq-q {
+      padding: 14px 18px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.93rem;
+      font-weight: 500;
+      background: var(--card-bg);
+      user-select: none;
+      gap: 10px;
+    }
+    .faq-q:hover { background: rgba(255,255,255,0.07); }
+    .faq-a {
+      padding: 0 18px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.3s;
+      color: var(--subtitle);
+      font-size: 0.88rem;
+      line-height: 1.75;
+    }
+    .faq-a.open { max-height: 300px; padding: 12px 18px 16px; }
+    .faq-chevron { transition: transform 0.3s; flex-shrink: 0; }
+    .faq-q.open .faq-chevron { transform: rotate(180deg); }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--heading);
+      margin-bottom: 4px;
+    }
+    .stat-label { font-size: 0.78rem; color: var(--subtitle); }
+    .site-footer {
+      width: 100%;
+      max-width: 600px;
+      margin-top: 50px;
+      padding: 24px 0 10px;
+      border-top: 1px solid var(--card-border);
+      text-align: center;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .footer-links a {
+      color: var(--label-color);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { font-size: 0.78rem; color: var(--time-color); }
   </style>
 </head>
 <body>
@@ -549,6 +692,145 @@
       btn.disabled = false;
       btn.textContent = '문의 보내기';
     });
+
+    // FAQ 토글
+    document.querySelectorAll('.faq-q').forEach(q => {
+      q.addEventListener('click', () => {
+        const a = q.nextElementSibling;
+        const isOpen = a.classList.contains('open');
+        document.querySelectorAll('.faq-a.open').forEach(el => el.classList.remove('open'));
+        document.querySelectorAll('.faq-q.open').forEach(el => el.classList.remove('open'));
+        if (!isOpen) { a.classList.add('open'); q.classList.add('open'); }
+      });
+    });
   </script>
+
+  <!-- ===== 로또 완전 가이드 ===== -->
+  <div class="content-section">
+    <h2>🎯 로또 6/45 완전 가이드</h2>
+    <p>로또 6/45는 1부터 45까지의 숫자 중 6개를 선택하여 당첨 번호와 일치하는 개수에 따라 당첨금을 받는 대한민국 대표 복권입니다. 매주 토요일 오후 8시 35분에 생방송으로 추첨되며, 기획재정부 복권위원회가 주관합니다. 복권 수익금의 일부는 저소득층 지원, 문화·예술 사업, 사회 인프라 구축 등 공익 목적에 사용됩니다.</p>
+
+    <h3>📊 로또 당첨 등수별 구조</h3>
+    <p>로또 6/45의 당첨 등수는 총 5단계로 나뉩니다. 1등부터 3등까지는 판매 금액에 따라 당첨금이 달라지는 변동 방식이며, 4등과 5등은 고정 금액입니다.</p>
+    <table class="prize-table">
+      <thead>
+        <tr><th>등수</th><th>조건</th><th>당첨금</th><th>확률</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1등</td><td>6개 번호 모두 일치</td><td>변동 (평균 20억+)</td><td>1/8,145,060</td></tr>
+        <tr><td>2등</td><td>5개 + 보너스 번호</td><td>변동 (평균 6천만)</td><td>1/1,357,510</td></tr>
+        <tr><td>3등</td><td>5개 번호 일치</td><td>변동 (평균 150만)</td><td>1/35,724</td></tr>
+        <tr><td>4등</td><td>4개 번호 일치</td><td>고정 50,000원</td><td>1/733</td></tr>
+        <tr><td>5등</td><td>3개 번호 일치</td><td>고정 5,000원</td><td>1/45</td></tr>
+      </tbody>
+    </table>
+
+    <h3>🔢 로또 번호 선택 전략</h3>
+    <p>로또는 순수한 확률 게임이므로 어떤 전략도 당첨 확률 자체를 높일 수는 없습니다. 그러나 번호를 선택하는 방식에 따라 당첨 시 다른 사람과 1등을 나눌 확률을 줄일 수 있습니다. 아래 전략들을 참고해보세요.</p>
+    <ul class="tip-list">
+      <li><span class="tip-icon">🎲</span><strong>완전 무작위 선택:</strong> 퀵픽(QP) 기능을 이용하거나 이 사이트의 번호 추천기를 활용하세요. 통계적으로 가장 공정한 방법입니다.</li>
+      <li><span class="tip-icon">📈</span><strong>분산 선택:</strong> 1~10, 11~20, 21~30, 31~40, 41~45 각 구간에서 고루 선택하면 특정 구간에 몰리는 것을 방지할 수 있습니다.</li>
+      <li><span class="tip-icon">⚖️</span><strong>홀짝 균형:</strong> 홀수 3개 + 짝수 3개 또는 홀수 2개 + 짝수 4개 조합이 통계적으로 자주 나오는 패턴입니다.</li>
+      <li><span class="tip-icon">🚫</span><strong>연속 번호 피하기:</strong> 1, 2, 3, 4, 5, 6처럼 연속된 번호는 당첨 시 분배 인원이 많아질 수 있습니다.</li>
+      <li><span class="tip-icon">💡</span><strong>생일 숫자 지양:</strong> 1~31 사이 숫자에만 집중하면 32~45 번호를 놓치게 되어 통계적으로 불리합니다.</li>
+    </ul>
+
+    <h3>📉 로또 당첨 확률 이해하기</h3>
+    <p>1등 당첨 확률은 약 814만 분의 1입니다. 이를 직관적으로 이해하면, 매주 1장씩 구매했을 때 평균적으로 1등에 당첨되기까지 약 15만 6천 년이 걸립니다. 그러나 복권은 그 자체로 작은 설렘과 꿈을 사는 것이기도 합니다. 중요한 것은 오락의 범위 내에서 적당히 즐기는 것입니다.</p>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-num">1/814만</div>
+        <div class="stat-label">1등 당첨 확률</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">45개</div>
+        <div class="stat-label">전체 선택 번호 풀</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">매주 토요일</div>
+        <div class="stat-label">추첨 일정</div>
+      </div>
+    </div>
+
+    <h3>🏪 로또 구매 방법</h3>
+    <p>로또는 전국 복권 판매점에서 장당 1,000원에 구매할 수 있습니다. 한 번에 최대 5장(5세트)까지 구매 가능하며, 직접 번호를 선택하는 수동 방식과 기계가 자동으로 번호를 생성하는 자동(퀵픽) 방식이 있습니다. 동행복권 공식 앱이나 웹사이트를 통해 온라인 구매도 가능합니다. 단, 만 19세 이상만 구매할 수 있습니다.</p>
+
+    <h3>💰 당첨금 수령 방법</h3>
+    <p>5등(5,000원)은 복권 판매점에서 바로 수령할 수 있습니다. 4등(50,000원)부터 3등까지는 농협은행 전국 지점에서 수령 가능하며, 2등과 1등은 서울 강남구 소재 동행복권 본사에서만 수령할 수 있습니다. 당첨금은 지급 기한(1년)이 있으므로 반드시 기한 내 수령해야 합니다. 고액 당첨금은 세금(22%)이 원천징수됩니다.</p>
+  </div>
+
+  <!-- ===== FAQ ===== -->
+  <div class="content-section">
+    <h2>❓ 자주 묻는 질문 (FAQ)</h2>
+
+    <div class="faq-item">
+      <div class="faq-q">로또 번호 추천기는 어떤 방식으로 번호를 생성하나요? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">이 사이트의 번호 추천기는 브라우저 내장 난수 생성기(Math.random)를 사용하여 1~45 범위에서 중복 없이 6개의 번호를 무작위로 선택합니다. 매 클릭마다 완전히 독립적인 추첨이 이루어지며, 이전 결과가 다음 결과에 영향을 주지 않습니다.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">추천받은 번호로 당첨 확률이 높아지나요? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">아닙니다. 로또는 완전한 확률 게임으로, 어떤 번호 선택 방식도 당첨 확률 자체를 높이지 못합니다. 이 추천기는 편리한 무작위 번호 생성 도구로, 재미와 편의를 위해 제공됩니다. 책임감 있는 범위 내에서 즐겨주세요.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">한 회차에 몇 장까지 구매하는 것이 좋을까요? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">공식적으로는 1인당 1회 구매 시 5장(5,000원) 한도가 권장되며, 과도한 복권 구매는 가계 경제에 부담이 될 수 있습니다. 복권은 오락 목적으로 즐기되, 생활비를 사용하거나 당첨을 목적으로 과다 구매하지 않도록 주의하세요.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">같은 번호를 여러 장 구매하면 당첨금이 늘어나나요? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">네, 1~3등의 경우 당첨된 복권 수에 비례하여 당첨금이 늘어납니다. 예를 들어 같은 번호로 1등에 2장이 당첨되면 당첨금도 2배가 됩니다. 단 4~5등은 고정 금액이므로 동일합니다.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">로또 당첨 번호는 어디서 확인할 수 있나요? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">매주 토요일 오후 8시 35분 KBS 2TV 생방송과 동행복권 공식 홈페이지(dhlottery.co.kr)에서 실시간으로 확인할 수 있습니다. 또한 복권 판매점의 자동당첨조회기나 동행복권 앱에서도 즉시 확인 가능합니다.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">로또 1등 당첨 후 비밀을 유지하는 방법이 있나요? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">동행복권 본사에서 수령 시 신원 공개 없이 당첨금을 받을 수 있습니다. 당첨 사실을 주변에 알리지 않는 것이 재산 분쟁이나 불필요한 접근을 방지하는 데 도움이 됩니다. 당첨 복권은 안전한 장소에 보관하고 신속히 수령하는 것을 권장합니다.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">자동(퀵픽)과 수동 중 어느 방식이 더 유리한가요? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">통계적으로는 차이가 없습니다. 다만 실제 1등 당첨자 중 자동(퀵픽) 구매 비율이 수동보다 높은 편인데, 이는 자동 구매자 수가 더 많기 때문입니다. 순수하게 확률만 따지면 두 방식은 동일합니다.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">당첨금에 세금이 부과되나요? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">5등(5,000원)부터 200만 원 이하 당첨금은 비과세입니다. 200만 원 초과 3억 원 이하는 22%(소득세 20% + 지방소득세 2%), 3억 원 초과분은 33%(소득세 30% + 지방소득세 3%)가 원천징수됩니다. 즉, 20억 원 당첨 시 실수령액은 약 13~14억 원 수준입니다.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">추천 기록은 어떻게 저장되나요? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">추천 기록은 브라우저의 로컬 스토리지(localStorage)에 저장됩니다. 서버로 전송되거나 외부에 저장되지 않으며, 같은 브라우저를 사용하는 한 기기에서만 확인할 수 있습니다. '기록 삭제' 버튼으로 언제든지 삭제 가능합니다.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">로또를 즐겁게 즐기는 올바른 방법은 무엇인가요? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">로또는 당첨을 목적으로 하는 투자가 아닌, 소소한 꿈과 기대감을 즐기는 오락으로 접근하는 것이 좋습니다. 생활비나 저축을 사용하지 않고, 여유 자금 내에서 즐기세요. 과도한 구매는 오히려 삶의 질을 떨어뜨릴 수 있습니다.</div>
+    </div>
+  </div>
+
+  <!-- ===== 사이트 소개 ===== -->
+  <div class="content-section">
+    <h2>📌 이 사이트에 대해</h2>
+    <p>본 사이트는 로또 번호를 편리하게 추천받고, 추천 기록을 관리할 수 있도록 제작된 무료 서비스입니다. AI 기반 동물상 테스트도 함께 제공하여, 재미있고 유용한 경험을 드리기 위해 꾸준히 개선하고 있습니다.</p>
+    <p>사이트에서 생성된 모든 번호는 순수 무작위 알고리즘으로 생성되며, 당첨을 보장하지 않습니다. 복권은 건전한 오락의 범위 내에서 즐겨주세요.</p>
+  </div>
+
+  <!-- ===== 푸터 ===== -->
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="index.html">🎱 로또 번호 추천기</a>
+      <a href="animal-test.html">🐶🐱 동물상 테스트</a>
+      <a href="about.html">소개</a>
+      <a href="privacy.html">개인정보처리방침</a>
+    </div>
+    <p class="footer-copy">© 2025 ProductBuilder. All rights reserved.</p>
+  </footer>
 </body>
 </html>
