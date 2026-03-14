@@ -659,6 +659,8 @@
 
     function renderTable(data, view) {
       const table = document.getElementById('resultTable');
+      const isCashMode = !lastReinvest;
+
       if (view === 'monthly') {
         table.querySelector('thead').innerHTML = `
           <tr>
@@ -668,8 +670,7 @@
             <th>월적립</th>
             <th>투자원금</th>
             <th>배당금</th>
-            <th>포트폴리오</th>
-            <th>총자산</th>
+            ${isCashMode ? '<th>주식평가</th><th>총자산</th>' : '<th>총자산</th>'}
             <th>수익률</th>
           </tr>
         `;
@@ -681,8 +682,7 @@
             <th>보유주식</th>
             <th>투자원금</th>
             <th>연배당금</th>
-            <th>포트폴리오</th>
-            <th>총자산</th>
+            ${isCashMode ? '<th>주식평가</th><th>총자산</th>' : '<th>총자산</th>'}
             <th>수익률</th>
           </tr>
         `;
@@ -695,9 +695,11 @@
         const rateClass = d.profitRate >= 0 ? 'color:var(--positive)' : 'color:var(--negative)';
         const sign = d.profitRate >= 0 ? '+' : '';
         const tr = document.createElement('tr');
+        const assetCols = isCashMode
+          ? `<td>${formatKRW(d.portfolioValue)}원</td><td>${formatKRW(d.totalAsset)}원</td>`
+          : `<td>${formatKRW(d.totalAsset)}원</td>`;
 
         if (view === 'monthly') {
-          // 12월 행(연말)은 하이라이트
           if (d.month === 12) tr.classList.add('year-row');
           tr.innerHTML = `
             <td>${d.label}</td>
@@ -706,8 +708,7 @@
             <td>${d.monthlyAddAmount > 0 ? formatKRW(d.monthlyAddAmount) + '원' : '-'}</td>
             <td>${formatKRW(d.invested)}원</td>
             <td>${d.dividendThisMonth > 0 ? formatKRW(d.dividendThisMonth) + '원' : '-'}</td>
-            <td>${formatKRW(d.portfolioValue)}원</td>
-            <td>${formatKRW(d.totalAsset)}원</td>
+            ${assetCols}
             <td style="${rateClass};font-weight:600">${sign}${d.profitRate.toFixed(1)}%</td>
           `;
         } else {
@@ -717,8 +718,7 @@
             <td>${d.shares.toFixed(2)}</td>
             <td>${formatKRW(d.invested)}원</td>
             <td>${formatKRW(d.dividendThisYear)}원</td>
-            <td>${formatKRW(d.portfolioValue)}원</td>
-            <td>${formatKRW(d.totalAsset)}원</td>
+            ${assetCols}
             <td style="${rateClass};font-weight:600">${sign}${d.profitRate.toFixed(1)}%</td>
           `;
         }
