@@ -296,6 +296,41 @@
       font-weight: 500;
     }
     .result-table tr:hover td { background: rgba(255,255,255,0.03); }
+    .result-table tr.year-row td {
+      background: rgba(255,215,0,0.05);
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .table-section h3 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .view-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--input-bg);
+      border-radius: 8px;
+      padding: 3px;
+    }
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: var(--subtitle);
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .toggle-btn.active {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+    .toggle-btn:hover:not(.active) { color: var(--text); }
 
     .site-footer {
       width: 100%;
@@ -391,7 +426,13 @@
       </div>
 
       <div class="table-section">
-        <h3>연도별 상세 내역</h3>
+        <h3>
+          연도별 상세 내역
+          <div class="view-toggle">
+            <button class="toggle-btn active" id="yearlyBtn" onclick="switchView('yearly')">연도별</button>
+            <button class="toggle-btn" id="monthlyBtn" onclick="switchView('monthly')">월별</button>
+          </div>
+        </h3>
         <div style="overflow-x:auto;">
           <table class="result-table" id="resultTable">
             <thead></thead>
@@ -446,7 +487,21 @@
     }
 
     // 시뮬레이션
+    let lastYearlyData = null;
+    let lastMonthlyData = null;
+    let lastReinvest = true;
+    let currentView = 'yearly';
+
     document.getElementById('simulateBtn').addEventListener('click', runSimulation);
+
+    function switchView(view) {
+      currentView = view;
+      document.getElementById('yearlyBtn').classList.toggle('active', view === 'yearly');
+      document.getElementById('monthlyBtn').classList.toggle('active', view === 'monthly');
+      if (lastYearlyData) {
+        renderTable(view === 'yearly' ? lastYearlyData : lastMonthlyData, view);
+      }
+    }
 
     function runSimulation() {
       const startPrice = parseFloat(document.getElementById('startPrice').value);
@@ -461,27 +516,32 @@
 
       const monthlyGrowth = Math.pow(1 + annualGrowth, 1/12) - 1;
       const years = 10;
-      const months = years * 12;
 
       let currentPrice = startPrice;
       let shares = initInvest / startPrice;
       let totalInvested = initInvest;
       let totalDividendReceived = 0;
       let yearlyData = [];
+      let monthlyData = [];
 
-      // 0년차 기록
-      yearlyData.push({
-        year: 0,
+      // 0년차(0월) 기록
+      const initRecord = {
+        year: 0, month: 0,
+        label: '시작',
         price: startPrice,
         shares: shares,
         invested: initInvest,
+        monthlyAddAmount: 0,
+        dividendThisMonth: 0,
         dividendThisYear: 0,
         totalDividend: 0,
         portfolioValue: shares * startPrice,
         totalAsset: shares * startPrice,
         profit: 0,
         profitRate: 0
-      });
+      };
+      yearlyData.push(initRecord);
+      monthlyData.push(initRecord);
 
       for (let y = 1; y <= years; y++) {
         let dividendThisYear = 0;
@@ -491,51 +551,71 @@
           currentPrice = currentPrice * (1 + monthlyGrowth);
 
           // 월 적립 매수
+          let addedThisMonth = 0;
           if (monthlyAdd > 0) {
             const newShares = monthlyAdd / currentPrice;
             shares += newShares;
             totalInvested += monthlyAdd;
+            addedThisMonth = monthlyAdd;
+          }
+
+          // 12월(연말) 배당 지급
+          let dividendThisMonth = 0;
+          if (m === 12) {
+            const portfolioValueBeforeDividend = shares * currentPrice;
+            const dividend = portfolioValueBeforeDividend * annualDividend;
+            dividendThisMonth = dividend;
+            dividendThisYear = dividend;
+            totalDividendReceived += dividend;
+
+            if (reinvest && dividend > 0) {
+              const dividendShares = dividend / currentPrice;
+              shares += dividendShares;
+            }
+          }
+
+          const portfolioValue = shares * currentPrice;
+          const totalAsset = reinvest ? portfolioValue : portfolioValue + totalDividendReceived;
+          const profit = totalAsset - totalInvested;
+          const profitRate = totalInvested > 0 ? (profit / totalInvested) * 100 : 0;
+
+          const record = {
+            year: y, month: m,
+            label: y + '년 ' + m + '월',
+            price: currentPrice,
+            shares: shares,
+            invested: totalInvested,
+            monthlyAddAmount: addedThisMonth,
+            dividendThisMonth: dividendThisMonth,
+            dividendThisYear: dividendThisYear,
+            totalDividend: totalDividendReceived,
+            portfolioValue: portfolioValue,
+            totalAsset: totalAsset,
+            profit: profit,
+            profitRate: profitRate
+          };
+
+          monthlyData.push(record);
+
+          // 12월이면 연간 데이터에도 추가
+          if (m === 12) {
+            yearlyData.push(record);
           }
         }
-
-        // 연말 배당 지급
-        const portfolioValueBeforeDividend = shares * currentPrice;
-        const dividend = portfolioValueBeforeDividend * annualDividend;
-        dividendThisYear = dividend;
-        totalDividendReceived += dividend;
-
-        if (reinvest && dividend > 0) {
-          const dividendShares = dividend / currentPrice;
-          shares += dividendShares;
-        }
-
-        const portfolioValue = shares * currentPrice;
-        const totalAsset = reinvest ? portfolioValue : portfolioValue + totalDividendReceived;
-        const profit = totalAsset - totalInvested;
-        const profitRate = totalInvested > 0 ? (profit / totalInvested) * 100 : 0;
-
-        yearlyData.push({
-          year: y,
-          price: currentPrice,
-          shares: shares,
-          invested: totalInvested,
-          dividendThisYear: dividendThisYear,
-          totalDividend: totalDividendReceived,
-          portfolioValue: portfolioValue,
-          totalAsset: totalAsset,
-          profit: profit,
-          profitRate: profitRate
-        });
       }
 
-      displayResults(yearlyData, reinvest);
+      lastYearlyData = yearlyData;
+      lastMonthlyData = monthlyData;
+      lastReinvest = reinvest;
+
+      displayResults(yearlyData, monthlyData, reinvest);
     }
 
-    function displayResults(data, reinvest) {
+    function displayResults(yearlyData, monthlyData, reinvest) {
       const section = document.getElementById('resultSection');
       section.classList.add('visible');
 
-      const last = data[data.length - 1];
+      const last = yearlyData[yearlyData.length - 1];
       const profitClass = last.profit >= 0 ? 'positive' : 'negative';
       const profitSign = last.profit >= 0 ? '+' : '';
 
@@ -568,44 +648,83 @@
         </div>
       `;
 
-      // 테이블
+      // 테이블 렌더링
+      renderTable(currentView === 'yearly' ? yearlyData : monthlyData, currentView);
+
+      // 차트 그리기 (월별 데이터로 더 부드럽게)
+      drawChart(monthlyData);
+
+      // 스크롤
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderTable(data, view) {
       const table = document.getElementById('resultTable');
-      table.querySelector('thead').innerHTML = `
-        <tr>
-          <th>연차</th>
-          <th>주가</th>
-          <th>보유주식</th>
-          <th>투자원금</th>
-          <th>연배당금</th>
-          <th>포트폴리오</th>
-          <th>총자산</th>
-          <th>수익률</th>
-        </tr>
-      `;
+      if (view === 'monthly') {
+        table.querySelector('thead').innerHTML = `
+          <tr>
+            <th>시점</th>
+            <th>주가</th>
+            <th>보유주식</th>
+            <th>월적립</th>
+            <th>투자원금</th>
+            <th>배당금</th>
+            <th>포트폴리오</th>
+            <th>총자산</th>
+            <th>수익률</th>
+          </tr>
+        `;
+      } else {
+        table.querySelector('thead').innerHTML = `
+          <tr>
+            <th>연차</th>
+            <th>주가</th>
+            <th>보유주식</th>
+            <th>투자원금</th>
+            <th>연배당금</th>
+            <th>포트폴리오</th>
+            <th>총자산</th>
+            <th>수익률</th>
+          </tr>
+        `;
+      }
+
       const tbody = table.querySelector('tbody');
       tbody.innerHTML = '';
+
       data.forEach(d => {
         const rateClass = d.profitRate >= 0 ? 'color:var(--positive)' : 'color:var(--negative)';
         const sign = d.profitRate >= 0 ? '+' : '';
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${d.year}년</td>
-          <td>${formatFullKRW(d.price)}</td>
-          <td>${d.shares.toFixed(2)}</td>
-          <td>${formatKRW(d.invested)}원</td>
-          <td>${formatKRW(d.dividendThisYear)}원</td>
-          <td>${formatKRW(d.portfolioValue)}원</td>
-          <td>${formatKRW(d.totalAsset)}원</td>
-          <td style="${rateClass};font-weight:600">${sign}${d.profitRate.toFixed(1)}%</td>
-        `;
+
+        if (view === 'monthly') {
+          // 12월 행(연말)은 하이라이트
+          if (d.month === 12) tr.classList.add('year-row');
+          tr.innerHTML = `
+            <td>${d.label}</td>
+            <td>${formatFullKRW(d.price)}</td>
+            <td>${d.shares.toFixed(2)}</td>
+            <td>${d.monthlyAddAmount > 0 ? formatKRW(d.monthlyAddAmount) + '원' : '-'}</td>
+            <td>${formatKRW(d.invested)}원</td>
+            <td>${d.dividendThisMonth > 0 ? formatKRW(d.dividendThisMonth) + '원' : '-'}</td>
+            <td>${formatKRW(d.portfolioValue)}원</td>
+            <td>${formatKRW(d.totalAsset)}원</td>
+            <td style="${rateClass};font-weight:600">${sign}${d.profitRate.toFixed(1)}%</td>
+          `;
+        } else {
+          tr.innerHTML = `
+            <td>${d.year}년</td>
+            <td>${formatFullKRW(d.price)}</td>
+            <td>${d.shares.toFixed(2)}</td>
+            <td>${formatKRW(d.invested)}원</td>
+            <td>${formatKRW(d.dividendThisYear)}원</td>
+            <td>${formatKRW(d.portfolioValue)}원</td>
+            <td>${formatKRW(d.totalAsset)}원</td>
+            <td style="${rateClass};font-weight:600">${sign}${d.profitRate.toFixed(1)}%</td>
+          `;
+        }
         tbody.appendChild(tr);
       });
-
-      // 차트 그리기
-      drawChart(data);
-
-      // 스크롤
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     // 캔버스 차트 (라이브러리 없이)
@@ -657,12 +776,14 @@
         ctx.fillText(formatKRW(val), pad.left - 8, y + 4);
       }
 
-      // X축 라벨
+      // X축 라벨 (연 단위로만 표시)
       ctx.textAlign = 'center';
       data.forEach((d, i) => {
-        const x = pad.left + (chartW * i / (data.length - 1));
-        ctx.fillStyle = textColor;
-        ctx.fillText(d.year + '년', x, H - pad.bottom + 20);
+        if (d.month === 0 || d.month === 12) {
+          const x = pad.left + (chartW * i / (data.length - 1));
+          ctx.fillStyle = textColor;
+          ctx.fillText(d.year + '년', x, H - pad.bottom + 20);
+        }
       });
 
       function getY(val) {
@@ -715,15 +836,17 @@
       ctx.lineWidth = 2.5;
       ctx.stroke();
 
-      // 데이터 포인트
-      totalAssets.forEach((v, i) => {
-        ctx.beginPath();
-        ctx.arc(getX(i), getY(v), 4, 0, Math.PI * 2);
-        ctx.fillStyle = '#e94560';
-        ctx.fill();
-        ctx.strokeStyle = theme === 'dark' ? '#1a1a2e' : '#f0f4ff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+      // 데이터 포인트 (연 단위만 표시)
+      data.forEach((d, i) => {
+        if (d.month === 0 || d.month === 12) {
+          ctx.beginPath();
+          ctx.arc(getX(i), getY(totalAssets[i]), 4, 0, Math.PI * 2);
+          ctx.fillStyle = '#e94560';
+          ctx.fill();
+          ctx.strokeStyle = theme === 'dark' ? '#1a1a2e' : '#f0f4ff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
       });
 
       // 범례
