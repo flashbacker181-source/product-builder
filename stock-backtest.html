@@ -578,9 +578,14 @@
           const profit = totalAsset - totalInvested;
           const profitRate = totalInvested > 0 ? (profit / totalInvested) * 100 : 0;
 
+          const totalMonths = (y - 1) * 12 + m;
+          const labelYear = Math.floor(totalMonths / 12);
+          const labelMonth = totalMonths % 12;
+          const label = labelMonth === 0 ? labelYear + '년' : labelYear + '년 ' + labelMonth + '개월';
+
           const record = {
             year: y, month: m,
-            label: y + '년 ' + m + '월',
+            label: label,
             price: currentPrice,
             shares: shares,
             invested: totalInvested,
@@ -713,7 +718,7 @@
           `;
         } else {
           tr.innerHTML = `
-            <td>${d.year}년</td>
+            <td>${d.label}</td>
             <td>${formatFullKRW(d.price)}</td>
             <td>${d.shares.toFixed(2)}</td>
             <td>${formatKRW(d.invested)}원</td>
