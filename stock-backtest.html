@@ -519,8 +519,10 @@
 
       let currentPrice = startPrice;
       let shares = initInvest / startPrice;
-      let totalInvested = initInvest;
+      let totalOutOfPocket = initInvest;     // 내 주머니에서 나간 돈
+      let totalInvested = initInvest;         // 총 투자원금 (재투자 배당 포함)
       let totalDividendReceived = 0;
+      let totalDividendReinvested = 0;
       let yearlyData = [];
       let monthlyData = [];
 
@@ -530,6 +532,7 @@
         label: '시작',
         price: startPrice,
         shares: shares,
+        outOfPocket: initInvest,
         invested: initInvest,
         monthlyAddAmount: 0,
         dividendThisMonth: 0,
@@ -557,6 +560,7 @@
           if (monthlyAdd > 0) {
             const newShares = monthlyAdd / currentPrice;
             shares += newShares;
+            totalOutOfPocket += monthlyAdd;
             totalInvested += monthlyAdd;
             addedThisMonth = monthlyAdd;
           }
@@ -571,12 +575,14 @@
           if (reinvest && dividend > 0) {
             const dividendShares = dividend / currentPrice;
             shares += dividendShares;
+            totalDividendReinvested += dividend;
+            totalInvested += dividend;
           }
 
           const portfolioValue = shares * currentPrice;
           const totalAsset = reinvest ? portfolioValue : portfolioValue + totalDividendReceived;
-          const profit = totalAsset - totalInvested;
-          const profitRate = totalInvested > 0 ? (profit / totalInvested) * 100 : 0;
+          const profit = totalAsset - totalOutOfPocket;
+          const profitRate = totalOutOfPocket > 0 ? (profit / totalOutOfPocket) * 100 : 0;
 
           const totalMonths = (y - 1) * 12 + m;
           const labelYear = Math.floor(totalMonths / 12);
@@ -588,6 +594,7 @@
             label: label,
             price: currentPrice,
             shares: shares,
+            outOfPocket: totalOutOfPocket,
             invested: totalInvested,
             monthlyAddAmount: addedThisMonth,
             dividendThisMonth: dividendThisMonth,
@@ -631,8 +638,8 @@
           <div class="summary-label">최종 자산</div>
         </div>
         <div class="summary-card">
-          <div class="summary-value">${formatFullKRW(last.invested)}</div>
-          <div class="summary-label">총 투자 원금</div>
+          <div class="summary-value">${formatFullKRW(last.outOfPocket)}</div>
+          <div class="summary-label">납입 원금</div>
         </div>
         <div class="summary-card">
           <div class="summary-value ${profitClass}">${profitSign}${formatFullKRW(last.profit)}</div>
@@ -673,8 +680,9 @@
             <th>주가</th>
             <th>보유주식</th>
             <th>월적립</th>
-            <th>투자원금</th>
+            <th>납입원금</th>
             <th>배당금</th>
+            <th>총투자원금</th>
             ${isCashMode ? '<th>주식평가</th><th>총자산</th>' : '<th>총자산</th>'}
             <th>수익률</th>
           </tr>
@@ -685,8 +693,9 @@
             <th>연차</th>
             <th>주가</th>
             <th>보유주식</th>
-            <th>투자원금</th>
+            <th>납입원금</th>
             <th>연배당금</th>
+            <th>총투자원금</th>
             ${isCashMode ? '<th>주식평가</th><th>총자산</th>' : '<th>총자산</th>'}
             <th>수익률</th>
           </tr>
@@ -711,8 +720,9 @@
             <td>${formatFullKRW(d.price)}</td>
             <td>${d.shares.toFixed(2)}</td>
             <td>${d.monthlyAddAmount > 0 ? formatKRW(d.monthlyAddAmount) + '원' : '-'}</td>
-            <td>${formatKRW(d.invested)}원</td>
+            <td>${formatKRW(d.outOfPocket)}원</td>
             <td>${d.dividendThisMonth > 0 ? formatKRW(d.dividendThisMonth) + '원' : '-'}</td>
+            <td>${formatKRW(d.invested)}원</td>
             ${assetCols}
             <td style="${rateClass};font-weight:600">${sign}${d.profitRate.toFixed(1)}%</td>
           `;
@@ -721,8 +731,9 @@
             <td>${d.label}</td>
             <td>${formatFullKRW(d.price)}</td>
             <td>${d.shares.toFixed(2)}</td>
-            <td>${formatKRW(d.invested)}원</td>
+            <td>${formatKRW(d.outOfPocket)}원</td>
             <td>${formatKRW(d.dividendThisYear)}원</td>
+            <td>${formatKRW(d.invested)}원</td>
             ${assetCols}
             <td style="${rateClass};font-weight:600">${sign}${d.profitRate.toFixed(1)}%</td>
           `;
