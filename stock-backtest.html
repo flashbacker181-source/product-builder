@@ -682,7 +682,6 @@
             <th>월적립</th>
             <th>납입원금</th>
             <th>배당금</th>
-            <th>총투자원금</th>
             ${isCashMode ? '<th>주식평가</th><th>총자산</th>' : '<th>총자산</th>'}
             <th>수익률</th>
           </tr>
@@ -695,7 +694,6 @@
             <th>보유주식</th>
             <th>납입원금</th>
             <th>연배당금</th>
-            <th>총투자원금</th>
             ${isCashMode ? '<th>주식평가</th><th>총자산</th>' : '<th>총자산</th>'}
             <th>수익률</th>
           </tr>
@@ -722,7 +720,6 @@
             <td>${d.monthlyAddAmount > 0 ? formatKRW(d.monthlyAddAmount) + '원' : '-'}</td>
             <td>${formatKRW(d.outOfPocket)}원</td>
             <td>${d.dividendThisMonth > 0 ? formatKRW(d.dividendThisMonth) + '원' : '-'}</td>
-            <td>${formatKRW(d.invested)}원</td>
             ${assetCols}
             <td style="${rateClass};font-weight:600">${sign}${d.profitRate.toFixed(1)}%</td>
           `;
@@ -733,7 +730,6 @@
             <td>${d.shares.toFixed(2)}</td>
             <td>${formatKRW(d.outOfPocket)}원</td>
             <td>${formatKRW(d.dividendThisYear)}원</td>
-            <td>${formatKRW(d.invested)}원</td>
             ${assetCols}
             <td style="${rateClass};font-weight:600">${sign}${d.profitRate.toFixed(1)}%</td>
           `;
